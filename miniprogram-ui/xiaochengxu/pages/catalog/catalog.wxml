@@ -1,0 +1,49 @@
+<view class="container">
+  <view class="content-container">
+    <scroll-view class="classify-container" scroll-y="true">
+      <view class="classify {{classifySeleted=='intoView'+classify.id?'active':''}}" wx:for="{{navList}}" wx:for-item="classify" wx:key="id" data-id="{{'intoView'+classify.id}}" bindtap="tapClassify">
+        <view class="name">{{classify.name}}</view>
+      </view>
+    </scroll-view>
+    <scroll-view class="goods-container" scroll-y="true" scroll-into-view="{{classifyViewed}}" scroll-with-animation="true" bindscroll="onGoodsScroll">
+      <view wx:for="{{navList}}" wx:for-item="classify" wx:key="id" id="{{'intoView'+classify.id}}">
+        <view class="title">{{classify.name}}</view>
+        <view class="goods" wx:for="{{classify.goodsInfoList}}" wx:for-item="fid" wx:key="*this" data-index="{{index}}">
+          <image class="pic" src="{{fid.picUrl}}"></image>
+          <view class="name ellipsis">{{fid.name}}</view>
+          <view class="sold">月售{{fid.sku}}</view>
+          <view class="price">￥{{fid.unitPrice}}</view>
+          <view class="reduceCart" bindtap="tapReduceCart" data-id="{{fid.id}}" wx:if="{{carCount[fid.id]}}" data-index="{{index}}">-</view>
+		        <view class="count" wx:if="{{carCount[fid.id]}}">{{carCount[fid.id]}}</view>
+          <view class="addCart" bindtap="tapAddCart" data-id="{{fid.id}}" data-index="{{index}}">+</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  <view class="cart-detail" hidden="{{!showCartDetail||!cart.count}}">
+    <view class="mask" bindtap="hideCartDetail"></view>
+    <view class="list">
+      <view class="item" wx:for="{{cart.list}}" wx:for-item="num" wx:for-index="id" wx:key="id">
+        <view class="name ellipsis">{{goodsInfo[cart.index].name}}</view>
+        <view class="total">￥{{goodsInfo[cart.index].unitPrice*carCount[id]}}</view>
+        <view class="reduce" data-id="{{id}}" bindtap="tapReduceCart" wx:if="{{carCount[id]}}" data-index="{{cart.index}}">-</view>
+        <view class="num" wx:if="{{carCount[id]}}">{{carCount[id]}}</view>
+        <view class="add" data-id="{{id}}" bindtap="tapAddCart" data-index="{{cart.index}}">+</view>
+      </view>
+    </view>
+  </view>
+  <view class="cart">
+    <view class="data" bindtap="showCartDetail">
+      <view class="icon">
+        <image src="/imgs/shop/cart.png"></image>
+        <view class="count">{{cart.count}}</view>
+      </view>
+      <view class="total">￥{{cart.total}}</view>
+    </view>
+    <form bindsubmit="submit" report-submit="true">
+
+      <!--<view formType="submit" class="submit">去结算</view>-->
+      <button class="yellow {{cart.count?'':'disabled'}}" formType="submit" disabled="{{!cart.count}}">去结算</button>
+    </form>
+  </view>
+</view>

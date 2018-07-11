@@ -1,0 +1,5 @@
+<view class="carConter">
+  <view class="symbol subtract" wx:if="{{cartData.count}}" bindtap="subtract">-</view>
+  <view class="value" wx:if="{{cartData.count}}">{{cartData.count}}</view>
+  <view class="symbol add" bindtap="add">+</view>
+</view>

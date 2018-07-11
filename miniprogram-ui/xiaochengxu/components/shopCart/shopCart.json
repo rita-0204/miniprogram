@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+        "carConter": "/components/carConter/carConter"        
+  }
+}

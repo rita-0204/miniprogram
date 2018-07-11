@@ -1,0 +1,28 @@
+<view class="carContent" animation="{{animationData}}" wx:if="{{showModalStatus}}"> 
+  <view class="carContainer">  
+    <view class="carTitle">
+      <text>已选商品</text><text class="fr" bindtap="hideModal">清空</text>
+    </view>
+    <scroll-view scroll-y="true" class="carList">
+      <block wx:for="{{selectFoods}}" wx:for-index="index" wx:key="key" wx:for-item="item">   
+        <view class="bd carItem">
+            <view class='title'>{{item.title}}</view>              
+            <view class='price'>￥{{item.price}}</view>
+            <!-- <view class='stepper'>
+              <carConter foods='{{item}}' bindmyevent="totalPrice"></carConter>
+            </view>   -->
+             <view class="stepper carConter">
+              <view class="symbol subtract" wx:if="{{flagShow}}" bindtap="subtract">-</view>
+              <view class="value" wx:if="{{flagShow}}">{{item.count}}</view>
+              <view class="symbol add" bindtap="add">+</view>
+            </view>   
+        </view>
+      </block> 
+    </scroll-view> 
+  </view>  
+</view>
+<view class="footer">
+    <view class='iconCar' bindtap="cascadeToggle"><view class="num">{{totalCount}}</view></view>  
+    <text class='title'>{{totalPrice}}未选购商品</text>
+    <button bindtap="">结算</button>
+</view>

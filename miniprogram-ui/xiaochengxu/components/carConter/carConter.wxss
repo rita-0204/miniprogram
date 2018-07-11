@@ -1,0 +1,24 @@
+/* components/carConter/carcOonter.wxss */
+.carConter{
+  display:flex;
+  text-align: center;
+}
+.carConter .value{
+  width:80rpx;
+}
+.carConter .symbol{
+  width:40rpx;
+  font-size:42rpx;
+  height:40rpx;
+  border-radius: 100rpx;
+  line-height: 34rpx;
+  text-align: center;
+  color:#fff;
+}
+
+.carConter .subtract{
+  background:#e2e2e2;
+}
+.carConter .add{
+  background:#b4282d;  
+}

@@ -1,0 +1,52 @@
+<view class="container">
+  <view></view>
+  <view>
+    <navigator url="../map/map">
+      <text bindtap="moveToLocation" class="page-body-button" type="primary">{{myAddress}}</text>
+    </navigator>
+  </view>
+  <swiper class="banner" indicator-dots="true" autoplay="true" interval="3000" duration="1000">
+    <swiper-item wx:for="{{banner}}" wx:key="{{item.id}}">
+      <navigator url="{{item.link}}">
+        <image src="{{item.image_url}}" background-size="cover"></image>
+      </navigator>
+    </swiper-item>
+  </swiper>
+  <view class="a-section a-new">
+    <view class="h">
+      <view>
+        <text class="txt">周一周四 · 新品首发</text>
+      </view>
+    </view>
+    <view class="b">
+      <view class="item" wx:for="{{newGoods[0].goodsInfoList}}" wx:for-index="index" wx:for-item="item" wx:key="{{item.id}}">
+        <navigator url="../catalog/catalog">
+          <image class="img" src="{{item.picUrl}}" background-size="cover"></image>
+          <text class="name">{{item.name}}</text>
+          <text class="price">￥{{item.unitPrice}}</text>
+        </navigator>
+      </view>
+    </view>
+  </view>
+  <view class="a-section a-popular" wx:if="{{hotGoods.length > 0}}">
+    <view class="h">
+      <view>
+        <text class="txt">人气推荐</text>
+      </view>
+    </view>
+    <view class="b">
+      <view class="item" wx:for="{{hotGoods}}" wx:for-index="index" wx:for-item="item" wx:key="{{item.id}}">
+        <navigator url="../catalog/catalog">
+          <image class="img" src="{{item.list_pic_url}}" background-size="cover"></image>
+          <view class="right">
+            <view class="text">
+              <text class="name">{{item.name}}</text>
+              <text class="desc">{{item.goods_brief}}</text>
+              <text class="price">￥{{item.retail_price}}</text>
+            </view>
+          </view>
+        </navigator>
+      </view>
+    </view>
+  </view>
+</view>
