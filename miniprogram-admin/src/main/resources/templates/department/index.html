@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: common_header(~{::title}, ~{})">
+    <title>默认页</title>
+</head>
+<body th:replace="layout :: common_body(~{::content}, ~{::script}, ~{::layers})">
+    <div style="padding: 15px;" th:fragment="content">
+        <div id="searchDemo">
+            搜索ID：
+            <div class="layui-inline">
+                <input class="layui-input" id="name" autocomplete="off">
+            </div>
+            <button class="layui-btn" data-type="reload">搜索</button>
+            <button class="layui-btn" id="btnAdd">添加</button>
+            <button class="layui-btn" id="btnAdd2">添加2</button>
+        </div>
+
+        <table id="tableDemo" lay-filter="tableDemo"></table>
+    </div>
+
+    <!-- 尝试前后端分离数据回填 -->
+    <div id="formContainer" style="padding: 15px; display: none;" th:fragment="layers">
+        <form class="layui-form" action="" method="post" id="form1">
+            <div class="layui-form-item">
+                <label class="layui-form-label">部门名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!-- <div class="layui-form-item">
+              <label class="layui-form-label">日期选择</label>
+                <div class="layui-input-inline">
+                  <input type="text" name="date" id="date" autocomplete="off" class="layui-input">
+                </div>
+            </div> -->
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <input type="hidden" id="id" name="id"/>
+                    <button class="layui-btn" lay-submit="" lay-filter="formSubDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-xs" lay-event="edit2">编辑2</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+    <script>
+        layui.use(['jquery'], function () {
+            var $ = layui.$;
+
+            $.fn.extend({
+                setForm: function (data) {
+                    var that = this;
+                    $.each(data, function (n, v) {
+                        var $input = that.find('input[name=' + n + ']');
+
+                        if ($input.attr('type') == 'checkbox') {
+                            if (v !== null) {
+                                var checkboxObj = $('[name=' + n + ']');
+                                var checkArray = v.split(';');
+                                for (var i = 0; i < checkboxObj.length; i++) {
+                                    for (var j = 0; j < checkArray.length; j++) {
+                                        if (checkboxObj[i].value == checkArray[j]) {
+                                            checkboxObj[i].click();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if ($input.attr('type') == 'radio') {
+                            $input.each(function () {
+                                var radioObj = $('[name=' + n + ']');
+                                for (var i = 0; i < radioObj.length; i++) {
+                                    if (radioObj[i].value == v) {
+                                        radiothat[i].click();
+                                    }
+                                }
+                            });
+                        }
+                        else if ($input.attr('type') == 'textarea') {
+                            that.find('[name=' + n + ']').html(v);
+                        }
+                        else {
+                            that.find('[name=' + n + ']').val(v);
+                        }
+                    })
+
+                }
+            });
+        });
+    </script>
+    <script th:inline="none">
+        var layerIndex;
+
+        layui.use(['jquery', 'table', 'form', 'layedit', 'laydate'], function(){
+            var $ = layui.$
+                ,table = layui.table
+                ,form = layui.form
+                ,layer = layui.layer
+                ,layedit = layui.layedit
+                ,laydate = layui.laydate;
+
+            // 第一个实例
+            table.render({
+                elem: '#tableDemo'
+                ,id: 'tableReloadDemo'
+                ,height: 315
+                ,url: '/department/getpage/'
+                ,page: true
+                ,loading: true
+                ,cols: [[
+                    {field: 'id', title: 'ID', width:80, fixed: 'left'}
+                    ,{field: 'name', title: '部门名称', width: 150}
+                    ,{field: 'createTime', title: '创建时间', width: 250}
+                    ,{align: 'left', toolbar: '#barDemo'}
+                ]]
+            });
+            
+            function edit(id) {
+                // Ajax获取
+                $.get('/department/edit?id=' + id, function(res){
+                    layerIndex = layer.open({
+                        type: 1,
+                        content: res
+                        ,area: ['800px', '600px']
+                        ,maxmin: true
+                    });
+                });
+            }
+
+            function edit2(id) {
+                var loadIndex = layer.load(2);
+//                layer.msg('ID：'+ data.id + ' 的编辑操作');
+                var $form1 = $('#form1');
+                $form1.attr('action', '/department/edit');
+
+                $.ajax({
+                    type: 'get'
+                    ,url: '/department/edit2?id=' + id
+                    ,dateType: 'json'
+                    ,success: function(res){
+                        // 回填数据
+                        $form1.setForm(res.data);
+
+                        // 关闭加载动画
+                        loadIndex && layer.close(loadIndex);
+
+                        layerIndex = layer.open({
+                            type: 1,
+                            content: $('#formContainer')
+                            ,area: ['800px', '600px']
+                            ,maxmin: true
+                        });
+                    }
+                    ,error: function () {
+                        loadIndex && layer.close(loadIndex);
+                        layer.alert('数据接口请求异常');
+                    }
+                });
+            }
+
+            // 监听工具条
+            table.on('tool(tableDemo)', function(obj){
+                var data = obj.data;
+                var layEvent = obj.event;
+                var tr = obj.tr;
+
+                if(layEvent === 'detail'){
+                    layer.msg('ID：'+ data.id + ' 的查看操作');
+                } else if(layEvent === 'del'){
+                    layer.confirm('真的删除行么', function(index){
+                        obj.del();
+                        layer.close(index2);
+                        //向服务端发送删除指令
+                    });
+                } else if(layEvent === 'edit'){
+                    edit(data.id);
+
+//                    layer.msg('ID：'+ data.id + ' 的编辑操作');
+//                    layer.alert('编辑行：<br>'+ JSON.stringify(data))
+
+                    //同步更新缓存对应的值
+//                    obj.update({
+//                        username: '123'
+//                        ,title: 'xxx'
+//                    });
+                } else if(layEvent === 'edit2'){
+                    edit2(data.id);
+                }
+            });
+
+            var $ = layui.$, active = {
+                reload: function(){
+                    //执行重载
+                    table.reload('tableReloadDemo', {
+                        where: { name: $('#name').val() }
+                    });
+                }
+            };
+
+            $('#searchDemo .layui-btn').on('click', function(){
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+            
+            function add() {
+                //Ajax获取
+                $.get('/department/add', function(res){
+                    layerIndex = layer.open({
+                        type: 1,
+                        content: res
+                        ,area: ['800px', '600px']
+                        ,maxmin: true
+                    });
+                });
+            }
+            
+            function add2() {
+                var loadIndex = layer.load(2);
+//                layer.msg('ID：'+ data.id + ' 的编辑操作');
+                var $form1 = $('#form1');
+                $form1.attr('action', '/department/add');
+
+                $.ajax({
+                    type: 'get'
+                    ,url: '/department/add2'
+                    ,dateType: 'json'
+                    ,success: function(res){
+                        // 回填数据
+                        $form1.setForm(res.data);
+
+                        // 关闭加载动画
+                        loadIndex && layer.close(loadIndex);
+
+                        layerIndex = layer.open({
+                            type: 1,
+                            content: $('#formContainer')
+                            ,area: ['800px', '600px']
+                            ,maxmin: true
+                        });
+                    }
+                    ,error: function () {
+                        loadIndex && layer.close(loadIndex);
+                        layer.alert('数据接口请求异常');
+                    }
+                });
+            }
+
+            $('#btnAdd').on('click', function(){
+                add();
+            });
+
+            $('#btnAdd2').on('click', function(){
+                add2();
+            });
+
+            // 日期
+//            laydate.render({
+//                elem: '#date'
+//            });
+
+            // 自定义验证规则
+//            form.verify({
+//                 title: function(value){
+//                   if(value.length < 5){
+//                     return '标题至少得5个字符啊';
+//                   }
+//                 }
+//                 ,pass: [/(.+){6,12}$/, '密码必须6到12位']
+//                 ,content: function(value){
+//                   layedit.sync(editIndex);
+//                 }
+//            });
+
+            // 监听指定开关
+            // form.on('switch(switchTest)', function(data){
+            //   layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+            //     offset: '6px'
+            //   });
+            //   layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+            // });
+
+            // 监听提交
+            form.on('submit(formSubDemo)', function(data){
+                // layer.alert(JSON.stringify(data.field), {
+                //   title: '最终的提交信息'
+                // })
+                var loadIndex = layer.load(2);
+
+                $.ajax({
+                    type: data.form.method
+                    ,url: data.form.action
+                    ,data: data.field
+                    ,dataType: 'json'
+                    ,success: function(res){
+                        loadIndex && layer.close(loadIndex);
+
+                        if(res.code == 0) {
+
+                            layerIndex && layer.close(layerIndex);
+
+                            table.reload('tableReloadDemo', {
+                                where: { name: $('#name').val() }
+                            });
+                        } else {
+
+                            layer.alert(res.msg);
+                        }
+                    }
+                    ,error: function(e, m){
+                        loadIndex && layer.close(loadIndex);
+                        layer.alert('数据接口请求异常');
+                    }
+                });
+
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>

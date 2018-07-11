@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/layout :: common_header(~{::title}, ~{})">
+    <title>默认页</title>
+</head>
+<body th:replace="layout/layout :: common_body(~{::contents}, ~{::scripts})">
+    <div style="padding: 15px;" th:fragment="contents">
+
+    </div>
+
+    <script th:fragment="scripts">
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: common_header(~{::title}, ~{})">
+    <meta charset="utf-8"/>
+    <meta name="renderer" content="webkit"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title>标题</title>
+
+    <link rel="stylesheet" href="../static/layui/css/layui.css" th:href="@{/layui/css/layui.css}"/>
+</head>
+<body>
+
+    <div id="editFormDemo" style="padding: 15px;" th:fragment="layers">
+        <form class="layui-form" action="" method="post" th:action="@{/department/edit}" th:object="${department}">
+            <div class="layui-form-item">
+                <label class="layui-form-label">部门名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="name" name="name" th:value="*{name}" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input"/>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <input type="hidden" id="id" name="id" th:value="*{id}"/>
+                    <button class="layui-btn" lay-submit="" lay-filter="editFormSubDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+
+        <!--<script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>-->
+        <script>
+            layui.use(['jquery', 'form', 'layer', 'table'], function(){
+                var $ = layui.$
+                    ,form = layui.form
+                    ,layer = layui.layer
+                    ,table = layui.table;
+
+                //监听提交
+                form.on('submit(editFormSubDemo)', function(data){
+                    //加载动画
+                    var loadIndex = layer.load(2);
+
+                    $.ajax({
+                        type: data.form.method
+                        ,url: data.form.action
+                        ,data: data.field
+                        ,dataType: 'json'
+                        ,success: function(res){
+                            //关闭加载动画
+                            loadIndex && layer.close(loadIndex);
+
+                            if(res.code == 0) {
+
+                                layerIndex && layer.close(layerIndex);
+
+                                table.reload('tableReloadDemo', {
+                                    where: { name: $('#name').val() }
+                                });
+//                                layer.alert(res.msg);
+                            } else {
+
+                                layer.alert(res.msg);
+                            }
+                        }
+                        ,error: function(e, m){
+                            //关闭加载动画
+                            loadIndex && layer.close(loadIndex);
+
+                            layer.alert('数据接口请求异常')
+                        }
+                    });
+
+                    return false;
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
